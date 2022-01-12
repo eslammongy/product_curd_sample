@@ -31,8 +31,15 @@ class  App{
 
     private function render(){
         if (class_exists($this->controller)){
-            $message = "Hello From Home Controller";
-            echo "<h1 style='text-align: center ; color: orangered'>$message</h1>";
+            $controller = new $this->controller;
+            if(method_exists($controller , $this->action)){
+                call_user_func_array([$controller , $this->action] , $this->parms);
+                $message = "Hello From Home Controller";
+                echo "<h1 style='text-align: center ; color: orangered'>$message</h1>";
+            }else{
+                echo "No Method Checked Here...";
+            }
+
         }else{
             $message = "This Controller :".$this->controller. " Not Exit";
             echo "<h1 style='text-align: center ; color: orangered'>$message</h1>";
