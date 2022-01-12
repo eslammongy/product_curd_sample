@@ -8,8 +8,13 @@ class  App{
     public  function __construct()
     {
         $url = $_SERVER["QUERY_STRING"];
-        $url = explode("/" , $url);
-        var_dump($url);
-        echo "<b></b> <h1>Welcome</h1>";
+
+        if (!empty($url)){
+            $url = explode("/" , $url);
+            echo "<b></b> <h1>$url[1]</h1>";
+        }else{
+            echo "<b></b> <h1 style='text-align: center ; color: orangered'>Welcome</h1>";
+        }
+
     }
 }
