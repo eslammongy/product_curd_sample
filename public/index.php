@@ -1,2 +1,5 @@
 <?php
-echo "Welcome To Eslam Mongy";
+require_once ('autoload.php');
+
+
+new App();
