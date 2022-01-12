@@ -3,6 +3,8 @@
 class HomeController{
 
     public function index($id){
-        echo "This Class Is Home Controller $id";
+      $date["title"] = "Home Screen";
+      $date["content"] = "Home Screen Content";
+      View::load('home' , $date);
     }
 }

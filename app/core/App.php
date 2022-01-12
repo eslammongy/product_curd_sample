@@ -22,7 +22,7 @@ class  App{
             $this->action = $url[1] ?? "index";
             unset($url[0] , $url[1]);
             $this->parms = !empty($url) ? array_values($url) : [];
-            var_dump($this->parms);
+            //var_dump($this->parms);
             echo "<h1 style='text-align: center ; color: orangered'>$this->controller</h1>";
         }else{
             echo "<b></b> <h1 style='text-align: center ; color: orangered'>Welcome</h1>";
