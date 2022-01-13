@@ -1,4 +1,12 @@
 <?php
+
+namespace DB;
+
+use modelPath;
+use Primary;
+use stating;
+use Variable;
+
 /**
  * Mysqli Model wrapper
  *
@@ -38,7 +46,8 @@
  * @method string getLastError()
  * @method string getLastQuery()
  */
-class dbObject {
+class dbObject
+{
     /**
      * Working instance of MysqliDb created earlier
      *
@@ -76,7 +85,7 @@ class dbObject {
      *
      * @var string
      */
-    private $_with = Array();
+    private $_with = array();
     /**
      * Per page limit for pagination
      *
@@ -93,7 +102,7 @@ class dbObject {
      * Variable which holds an amount of returned rows during paginate queries
      * @var string
      */
-    public static $totalCount = 0;	
+    public static $totalCount = 0;
     /**
      * An array that holds insert/update/select errors
      *
@@ -113,21 +122,24 @@ class dbObject {
      */
     protected $dbTable;
 
-	/**
-	 * @var array name of the fields that will be skipped during validation, preparing & saving
-	 */
+    /**
+     * @var array name of the fields that will be skipped during validation, preparing & saving
+     */
     protected $toSkip = array();
 
     /**
      * @param array $data Data to preload on object creation
      */
-    public function __construct ($data = null) {
+    public function __construct($data = null)
+    {
         $this->db = MysqliDb::getInstance();
-        if (empty ($this->dbTable))
-            $this->dbTable = get_class ($this);
+        if (empty ($this->dbTable)) {
+            $this->dbTable = get_class($this);
+        }
 
-        if ($data)
+        if ($data) {
             $this->data = $data;
+        }
     }
 
     /**
@@ -135,10 +147,12 @@ class dbObject {
      *
      * @return mixed
      */
-    public function __set ($name, $value) {
-        if (property_exists ($this, 'hidden') && array_search ($name, $this->hidden) !== false)
+    public function __set($name, $value)
+    {
+        if (property_exists($this, 'hidden') && array_search($name, $this->hidden) !== false) {
             return;
-	    
+        }
+
         $this->data[$name] = $value;
     }
 
@@ -149,15 +163,18 @@ class dbObject {
      *
      * @return mixed
      */
-    public function __get ($name) {
-        if (property_exists ($this, 'hidden') && array_search ($name, $this->hidden) !== false)
-	    return null;
-		
-	if (isset ($this->data[$name]) && $this->data[$name] instanceof dbObject)
-            return $this->data[$name];
+    public function __get($name)
+    {
+        if (property_exists($this, 'hidden') && array_search($name, $this->hidden) !== false) {
+            return null;
+        }
 
-        if (property_exists ($this, 'relations') && isset ($this->relations[$name])) {
-            $relationType = strtolower ($this->relations[$name][0]);
+        if (isset ($this->data[$name]) && $this->data[$name] instanceof dbObject) {
+            return $this->data[$name];
+        }
+
+        if (property_exists($this, 'relations') && isset ($this->relations[$name])) {
+            $relationType = strtolower($this->relations[$name][0]);
             $modelName = $this->relations[$name][1];
             switch ($relationType) {
                 case 'hasone':
@@ -177,22 +194,28 @@ class dbObject {
             }
         }
 
-        if (isset ($this->data[$name]))
+        if (isset ($this->data[$name])) {
             return $this->data[$name];
+        }
 
-        if (property_exists ($this->db, $name))
+        if (property_exists($this->db, $name)) {
             return $this->db->$name;
+        }
     }
 
-    public function __isset ($name) {
-        if (isset ($this->data[$name]))
+    public function __isset($name)
+    {
+        if (isset ($this->data[$name])) {
             return isset ($this->data[$name]);
+        }
 
-        if (property_exists ($this->db, $name))
+        if (property_exists($this->db, $name)) {
             return isset ($this->db->$name);
+        }
     }
 
-    public function __unset ($name) {
+    public function __unset($name)
+    {
         unset ($this->data[$name]);
     }
 
@@ -201,7 +224,8 @@ class dbObject {
      *
      * @return dbObject
      */
-    private function JsonBuilder () {
+    private function JsonBuilder()
+    {
         $this->returnType = 'Json';
         return $this;
     }
@@ -211,7 +235,8 @@ class dbObject {
      *
      * @return dbObject
      */
-    private function ArrayBuilder () {
+    private function ArrayBuilder()
+    {
         $this->returnType = 'Array';
         return $this;
     }
@@ -222,7 +247,8 @@ class dbObject {
      *
      * @return dbObject
      */
-    private function ObjectBuilder () {
+    private function ObjectBuilder()
+    {
         $this->returnType = 'Object';
         return $this;
     }
@@ -233,59 +259,72 @@ class dbObject {
      * @param string tableName Table name
      * @return dbObject
      */
-    public static function table ($tableName) {
-        $tableName = preg_replace ("/[^-a-z0-9_]+/i",'', $tableName);
-        if (!class_exists ($tableName))
+    public static function table($tableName)
+    {
+        $tableName = preg_replace("/[^-a-z0-9_]+/i", '', $tableName);
+        if (!class_exists($tableName)) {
             eval ("class $tableName extends dbObject {}");
+        }
         return new $tableName ();
     }
+
     /**
      * @return mixed insert id or false in case of failure
      */
-    public function insert () {
-        if (!empty ($this->timestamps) && in_array ("createdAt", $this->timestamps))
+    public function insert()
+    {
+        if (!empty ($this->timestamps) && in_array("createdAt", $this->timestamps)) {
             $this->createdAt = date("Y-m-d H:i:s");
-        $sqlData = $this->prepareData ();
-        if (!$this->validate ($sqlData))
+        }
+        $sqlData = $this->prepareData();
+        if (!$this->validate($sqlData)) {
             return false;
+        }
 
-        $id = $this->db->insert ($this->dbTable, $sqlData);
-        if (!empty ($this->primaryKey) && empty ($this->data[$this->primaryKey]))
+        $id = $this->db->insert($this->dbTable, $sqlData);
+        if (!empty ($this->primaryKey) && empty ($this->data[$this->primaryKey])) {
             $this->data[$this->primaryKey] = $id;
+        }
         $this->isNew = false;
-	    $this->toSkip = array();
+        $this->toSkip = array();
         return $id;
     }
 
     /**
      * @param array $data Optional update data to apply to the object
      */
-    public function update ($data = null) {
-        if (empty ($this->dbFields))
+    public function update($data = null)
+    {
+        if (empty ($this->dbFields)) {
             return false;
+        }
 
-        if (empty ($this->data[$this->primaryKey]))
+        if (empty ($this->data[$this->primaryKey])) {
             return false;
+        }
 
         if ($data) {
             foreach ($data as $k => $v) {
-	            if (in_array($k, $this->toSkip))
-		            continue;
+                if (in_array($k, $this->toSkip)) {
+                    continue;
+                }
 
-	            $this->$k = $v;
+                $this->$k = $v;
             }
         }
 
-        if (!empty ($this->timestamps) && in_array ("updatedAt", $this->timestamps))
+        if (!empty ($this->timestamps) && in_array("updatedAt", $this->timestamps)) {
             $this->updatedAt = date("Y-m-d H:i:s");
+        }
 
-        $sqlData = $this->prepareData ();
-        if (!$this->validate ($sqlData))
+        $sqlData = $this->prepareData();
+        if (!$this->validate($sqlData)) {
             return false;
-        
-        $this->db->where ($this->primaryKey, $this->data[$this->primaryKey]);
-	    $res = $this->db->update ($this->dbTable, $sqlData);
-	    $this->toSkip = array();
+        }
+
+        $this->db->where($this->primaryKey, $this->data[$this->primaryKey]);
+        $res = $this->db->update($this->dbTable, $sqlData);
+        $this->toSkip = array();
         return $res;
     }
 
@@ -294,10 +333,12 @@ class dbObject {
      *
      * @return mixed insert id or false in case of failure
      */
-    public function save ($data = null) {
-        if ($this->isNew)
+    public function save($data = null)
+    {
+        if ($this->isNew) {
             return $this->insert();
-        return $this->update ($data);
+        }
+        return $this->update($data);
     }
 
     /**
@@ -305,32 +346,37 @@ class dbObject {
      *
      * @return boolean Indicates success. 0 or 1.
      */
-    public function delete () {
-        if (empty ($this->data[$this->primaryKey]))
+    public function delete()
+    {
+        if (empty ($this->data[$this->primaryKey])) {
             return false;
+        }
 
-        $this->db->where ($this->primaryKey, $this->data[$this->primaryKey]);
-        $res = $this->db->delete ($this->dbTable);
+        $this->db->where($this->primaryKey, $this->data[$this->primaryKey]);
+        $res = $this->db->delete($this->dbTable);
         $this->toSkip = array();
         return $res;
     }
 
-	/**
-	 * chained method that append a field or fields to skipping
-	 * @param mixed|array|false $field field name; array of names; empty skipping if false
-	 * @return $this
-	 */
-    public function skip($field){
-	    if(is_array($field)) {
-		    foreach ($field as $f) {
-			    $this->toSkip[] = $f;
-		    }
-	    } else if($field === false) {
-	    	$this->toSkip = array();
-	    } else{
-	    	$this->toSkip[] = $field;
-	    }
-	    return $this;
+    /**
+     * chained method that append a field or fields to skipping
+     * @param mixed|array|false $field field name; array of names; empty skipping if false
+     * @return $this
+     */
+    public function skip($field)
+    {
+        if (is_array($field)) {
+            foreach ($field as $f) {
+                $this->toSkip[] = $f;
+            }
+        } else {
+            if ($field === false) {
+                $this->toSkip = array();
+            } else {
+                $this->toSkip[] = $field;
+            }
+        }
+        return $this;
     }
 
     /**
@@ -342,9 +388,10 @@ class dbObject {
      *
      * @return dbObject|array
      */
-    private function byId ($id, $fields = null) {
-        $this->db->where (MysqliDb::$prefix . $this->dbTable . '.' . $this->primaryKey, $id);
-        return $this->getOne ($fields);
+    private function byId($id, $fields = null)
+    {
+        $this->db->where(MysqliDb::$prefix . $this->dbTable . '.' . $this->primaryKey, $id);
+        return $this->getOne($fields);
     }
 
     /**
@@ -355,39 +402,45 @@ class dbObject {
      *
      * @return dbObject
      */
-    protected function getOne ($fields = null) {
-        $this->processHasOneWith ();
-        $results = $this->db->ArrayBuilder()->getOne ($this->dbTable, $fields);
-        if ($this->db->count == 0)
+    protected function getOne($fields = null)
+    {
+        $this->processHasOneWith();
+        $results = $this->db->ArrayBuilder()->getOne($this->dbTable, $fields);
+        if ($this->db->count == 0) {
             return null;
+        }
 
-        $this->processArrays ($results);
+        $this->processArrays($results);
         $this->data = $results;
-        $this->processAllWith ($results);
-        if ($this->returnType == 'Json')
-            return json_encode ($results);
-        if ($this->returnType == 'Array')
+        $this->processAllWith($results);
+        if ($this->returnType == 'Json') {
+            return json_encode($results);
+        }
+        if ($this->returnType == 'Array') {
             return $results;
+        }
 
         $item = new static ($results);
         $item->isNew = false;
 
         return $item;
     }
-	
+
     /**
      * A convenient SELECT COLUMN function to get a single column value from model object
      *
-     * @param string $column    The desired column
-     * @param int    $limit     Limit of rows to select. Use null for unlimited..1 by default
+     * @param string $column The desired column
+     * @param int $limit Limit of rows to select. Use null for unlimited..1 by default
      *
      * @return mixed Contains the value of a returned column / array of values
      * @throws Exception
      */
-    protected function getValue ($column, $limit = 1) {
-        $res = $this->db->ArrayBuilder()->getValue ($this->dbTable, $column, $limit);
-        if (!$res)
+    protected function getValue($column, $limit = 1)
+    {
+        $res = $this->db->ArrayBuilder()->getValue($this->dbTable, $column, $limit);
+        if (!$res) {
             return null;
+        }
         return $res;
     }
 
@@ -398,10 +451,11 @@ class dbObject {
      * @return bool
      * @throws Exception
      */
-    protected function has() {
+    protected function has()
+    {
         return $this->db->has($this->dbTable);
     }
-	
+
     /**
      * Fetch all objects
      *
@@ -412,29 +466,33 @@ class dbObject {
      *
      * @return array Array of dbObjects
      */
-    protected function get ($limit = null, $fields = null) {
-        $objects = Array ();
-        $this->processHasOneWith ();
-        $results = $this->db->ArrayBuilder()->get ($this->dbTable, $limit, $fields);
-        if ($this->db->count == 0)
+    protected function get($limit = null, $fields = null)
+    {
+        $objects = array();
+        $this->processHasOneWith();
+        $results = $this->db->ArrayBuilder()->get($this->dbTable, $limit, $fields);
+        if ($this->db->count == 0) {
             return null;
+        }
 
         foreach ($results as $k => &$r) {
-            $this->processArrays ($r);
+            $this->processArrays($r);
             $this->data = $r;
-            $this->processAllWith ($r, false);
+            $this->processAllWith($r, false);
             if ($this->returnType == 'Object') {
                 $item = new static ($r);
                 $item->isNew = false;
                 $objects[$k] = $item;
             }
         }
-        $this->_with = Array();
-        if ($this->returnType == 'Object')
+        $this->_with = array();
+        if ($this->returnType == 'Object') {
             return $objects;
+        }
 
-        if ($this->returnType == 'Json')
-            return json_encode ($results);
+        if ($this->returnType == 'Json') {
+            return json_encode($results);
+        }
 
         return $results;
     }
@@ -447,9 +505,11 @@ class dbObject {
      *
      * @return dbObject
      */
-    private function with ($objectName) {
-        if (!property_exists ($this, 'relations') || !isset ($this->relations[$objectName]))
+    private function with($objectName)
+    {
+        if (!property_exists($this, 'relations') || !isset ($this->relations[$objectName])) {
             die ("No relation with name $objectName found");
+        }
 
         $this->_with[$objectName] = $this->relations[$objectName];
 
@@ -467,20 +527,24 @@ class dbObject {
      *
      * @return dbObject
      */
-    private function join ($objectName, $key = null, $joinType = 'LEFT', $primaryKey = null) {
+    private function join($objectName, $key = null, $joinType = 'LEFT', $primaryKey = null)
+    {
         $joinObj = new $objectName;
-        if (!$key)
+        if (!$key) {
             $key = $objectName . "id";
+        }
 
-        if (!$primaryKey)
+        if (!$primaryKey) {
             $primaryKey = MysqliDb::$prefix . $joinObj->dbTable . "." . $joinObj->primaryKey;
-		
-        if (!strchr ($key, '.'))
-            $joinStr = MysqliDb::$prefix . $this->dbTable . ".{$key} = " . $primaryKey;
-        else
-            $joinStr = MysqliDb::$prefix . "{$key} = " . $primaryKey;
+        }
 
-        $this->db->join ($joinObj->dbTable, $joinStr, $joinType);
+        if (!strchr($key, '.')) {
+            $joinStr = MysqliDb::$prefix . $this->dbTable . ".{$key} = " . $primaryKey;
+        } else {
+            $joinStr = MysqliDb::$prefix . "{$key} = " . $primaryKey;
+        }
+
+        $this->db->join($joinObj->dbTable, $joinStr, $joinType);
         return $this;
     }
 
@@ -489,10 +553,12 @@ class dbObject {
      *
      * @return int
      */
-    protected function count () {
-        $res = $this->db->ArrayBuilder()->getValue ($this->dbTable, "count(*)");
-        if (!$res)
+    protected function count()
+    {
+        $res = $this->db->ArrayBuilder()->getValue($this->dbTable, "count(*)");
+        if (!$res) {
             return 0;
+        }
         return $res;
     }
 
@@ -504,31 +570,36 @@ class dbObject {
      * @param array|string $fields Array or coma separated list of fields to fetch
      * @return array
      */
-    private function paginate ($page, $fields = null) {
+    private function paginate($page, $fields = null)
+    {
         $this->db->pageLimit = self::$pageLimit;
-        $objects = Array ();
-        $this->processHasOneWith ();	    
-        $res = $this->db->paginate ($this->dbTable, $page, $fields);
+        $objects = array();
+        $this->processHasOneWith();
+        $res = $this->db->paginate($this->dbTable, $page, $fields);
         self::$totalPages = $this->db->totalPages;
-	self::$totalCount = $this->db->totalCount;
-	if ($this->db->count == 0) return null;
-	    
+        self::$totalCount = $this->db->totalCount;
+        if ($this->db->count == 0) {
+            return null;
+        }
+
         foreach ($res as $k => &$r) {
-            $this->processArrays ($r);
+            $this->processArrays($r);
             $this->data = $r;
-            $this->processAllWith ($r, false);
+            $this->processAllWith($r, false);
             if ($this->returnType == 'Object') {
                 $item = new static ($r);
                 $item->isNew = false;
                 $objects[$k] = $item;
             }
         }
-        $this->_with = Array();
-        if ($this->returnType == 'Object')
+        $this->_with = array();
+        if ($this->returnType == 'Object') {
             return $objects;
+        }
 
-        if ($this->returnType == 'Json')
-            return json_encode ($res);
+        if ($this->returnType == 'Json') {
+            return json_encode($res);
+        }
 
         return $res;
     }
@@ -543,11 +614,13 @@ class dbObject {
      *
      * @return mixed
      */
-    public function __call ($method, $arg) {
-        if (method_exists ($this, $method))
-            return call_user_func_array (array ($this, $method), $arg);
+    public function __call($method, $arg)
+    {
+        if (method_exists($this, $method)) {
+            return call_user_func_array(array($this, $method), $arg);
+        }
 
-        call_user_func_array (array ($this->db, $method), $arg);
+        call_user_func_array(array($this->db, $method), $arg);
         return $this;
     }
 
@@ -561,11 +634,13 @@ class dbObject {
      *
      * @return mixed
      */
-    public static function __callStatic ($method, $arg) {
+    public static function __callStatic($method, $arg)
+    {
         $obj = new static;
-        $result = call_user_func_array (array ($obj, $method), $arg);
-        if (method_exists ($obj, $method))
+        $result = call_user_func_array(array($obj, $method), $arg);
+        if (method_exists($obj, $method)) {
             return $result;
+        }
         return $obj;
     }
 
@@ -574,12 +649,14 @@ class dbObject {
      *
      * @return array Converted data
      */
-    public function toArray () {
+    public function toArray()
+    {
         $data = $this->data;
-        $this->processAllWith ($data);
+        $this->processAllWith($data);
         foreach ($data as &$d) {
-            if ($d instanceof dbObject)
+            if ($d instanceof dbObject) {
                 $d = $d->data;
+            }
         }
         return $data;
     }
@@ -589,8 +666,9 @@ class dbObject {
      *
      * @return string Converted data
      */
-    public function toJson () {
-        return json_encode ($this->toArray());
+    public function toJson()
+    {
+        return json_encode($this->toArray());
     }
 
     /**
@@ -598,8 +676,9 @@ class dbObject {
      *
      * @return string Converted data
      */
-    public function __toString () {
-        return $this->toJson ();
+    public function __toString()
+    {
+        return $this->toJson();
     }
 
     /**
@@ -607,22 +686,24 @@ class dbObject {
      *
      * @param array $data
      */
-    private function processAllWith (&$data, $shouldReset = true) {
-        if (count ($this->_with) == 0)
+    private function processAllWith(&$data, $shouldReset = true)
+    {
+        if (count($this->_with) == 0) {
             return;
+        }
 
         foreach ($this->_with as $name => $opts) {
-            $relationType = strtolower ($opts[0]);
+            $relationType = strtolower($opts[0]);
             $modelName = $opts[1];
             if ($relationType == 'hasone') {
                 $obj = new $modelName;
                 $table = $obj->dbTable;
                 $primaryKey = $obj->primaryKey;
-				
+
                 if (!isset ($data[$table])) {
                     $data[$name] = $this->$name;
                     continue;
-                } 
+                }
                 if ($data[$table][$primaryKey] === null) {
                     $data[$name] = null;
                 } else {
@@ -636,29 +717,33 @@ class dbObject {
                     }
                 }
                 unset ($data[$table]);
-            }
-            else
+            } else {
                 $data[$name] = $this->$name;
+            }
         }
-        if ($shouldReset)
-            $this->_with = Array();
+        if ($shouldReset) {
+            $this->_with = array();
+        }
     }
 
     /*
      * Function building hasOne joins for get/getOne method
      */
-    private function processHasOneWith () {
-        if (count ($this->_with) == 0)
+    private function processHasOneWith()
+    {
+        if (count($this->_with) == 0) {
             return;
+        }
         foreach ($this->_with as $name => $opts) {
-            $relationType = strtolower ($opts[0]);
+            $relationType = strtolower($opts[0]);
             $modelName = $opts[1];
             $key = null;
-            if (isset ($opts[2]))
+            if (isset ($opts[2])) {
                 $key = $opts[2];
+            }
             if ($relationType == 'hasone') {
-                $this->db->setQueryOption ("MYSQLI_NESTJOIN");
-                $this->join ($modelName, $key);
+                $this->db->setQueryOption("MYSQLI_NESTJOIN");
+                $this->join($modelName, $key);
             }
         }
     }
@@ -666,50 +751,61 @@ class dbObject {
     /**
      * @param array $data
      */
-    private function processArrays (&$data) {
-        if (isset ($this->jsonFields) && is_array ($this->jsonFields)) {
-            foreach ($this->jsonFields as $key)
-                $data[$key] = json_decode ($data[$key]);
+    private function processArrays(&$data)
+    {
+        if (isset ($this->jsonFields) && is_array($this->jsonFields)) {
+            foreach ($this->jsonFields as $key) {
+                $data[$key] = json_decode($data[$key]);
+            }
         }
 
         if (isset ($this->arrayFields) && is_array($this->arrayFields)) {
-            foreach ($this->arrayFields as $key)
-                $data[$key] = explode ("|", $data[$key]);
+            foreach ($this->arrayFields as $key) {
+                $data[$key] = explode("|", $data[$key]);
+            }
         }
     }
 
     /**
      * @param array $data
      */
-    private function validate ($data) {
-        if (!$this->dbFields)
+    private function validate($data)
+    {
+        if (!$this->dbFields) {
             return true;
+        }
 
         foreach ($this->dbFields as $key => $desc) {
-        	if(in_array($key, $this->toSkip))
-        		continue;
+            if (in_array($key, $this->toSkip)) {
+                continue;
+            }
 
             $type = null;
             $required = false;
-            if (isset ($data[$key]))
+            if (isset ($data[$key])) {
                 $value = $data[$key];
-            else
+            } else {
                 $value = null;
+            }
 
-            if (is_array ($value))
-                continue;
-
-            if (isset ($desc[0]))
-                $type = $desc[0];
-            if (isset ($desc[1]) && ($desc[1] == 'required'))
-                $required = true;
-
-            if ($required && strlen ($value) == 0) {
-                $this->errors[] = Array ($this->dbTable . "." . $key => "is required");
+            if (is_array($value)) {
                 continue;
             }
-            if ($value == null)
+
+            if (isset ($desc[0])) {
+                $type = $desc[0];
+            }
+            if (isset ($desc[1]) && ($desc[1] == 'required')) {
+                $required = true;
+            }
+
+            if ($required && strlen($value) == 0) {
+                $this->errors[] = array($this->dbTable . "." . $key => "is required");
                 continue;
+            }
+            if ($value == null) {
+                continue;
+            }
 
             switch ($type) {
                 case "text":
@@ -731,63 +827,76 @@ class dbObject {
                     $regexp = $type;
                     break;
             }
-            if (!$regexp)
+            if (!$regexp) {
                 continue;
+            }
 
-            if (!preg_match ($regexp, $value)) {
-                $this->errors[] = Array ($this->dbTable . "." . $key => "$type validation failed");
+            if (!preg_match($regexp, $value)) {
+                $this->errors[] = array($this->dbTable . "." . $key => "$type validation failed");
                 continue;
             }
         }
-        return !count ($this->errors) > 0;
+        return !count($this->errors) > 0;
     }
 
-    private function prepareData () {
-        $this->errors = Array ();
-        $sqlData = Array();
-        if (count ($this->data) == 0)
-            return Array();
+    private function prepareData()
+    {
+        $this->errors = array();
+        $sqlData = array();
+        if (count($this->data) == 0) {
+            return array();
+        }
 
-        if (method_exists ($this, "preLoad"))
-            $this->preLoad ($this->data);
+        if (method_exists($this, "preLoad")) {
+            $this->preLoad($this->data);
+        }
 
-        if (!$this->dbFields)
+        if (!$this->dbFields) {
             return $this->data;
+        }
 
         foreach ($this->data as $key => &$value) {
-        	if(in_array($key, $this->toSkip))
-        		continue;
+            if (in_array($key, $this->toSkip)) {
+                continue;
+            }
 
             if ($value instanceof dbObject && $value->isNew == true) {
                 $id = $value->save();
-                if ($id)
+                if ($id) {
                     $value = $id;
-                else
-                    $this->errors = array_merge ($this->errors, $value->errors);
+                } else {
+                    $this->errors = array_merge($this->errors, $value->errors);
+                }
             }
 
-            if (!in_array ($key, array_keys ($this->dbFields)))
+            if (!in_array($key, array_keys($this->dbFields))) {
                 continue;
+            }
 
             if (!is_array($value) && !is_object($value)) {
                 $sqlData[$key] = $value;
                 continue;
             }
 
-            if (isset ($this->jsonFields) && in_array ($key, $this->jsonFields))
+            if (isset ($this->jsonFields) && in_array($key, $this->jsonFields)) {
                 $sqlData[$key] = json_encode($value);
-            else if (isset ($this->arrayFields) && in_array ($key, $this->arrayFields))
-                $sqlData[$key] = implode ("|", $value);
-            else
-                $sqlData[$key] = $value;
+            } else {
+                if (isset ($this->arrayFields) && in_array($key, $this->arrayFields)) {
+                    $sqlData[$key] = implode("|", $value);
+                } else {
+                    $sqlData[$key] = $value;
+                }
+            }
         }
         return $sqlData;
     }
 
-    private static function dbObjectAutoload ($classname) {
-        $filename = static::$modelPath . $classname .".php";
-        if (file_exists ($filename))
-            include ($filename);
+    private static function dbObjectAutoload($classname)
+    {
+        $filename = static::$modelPath . $classname . ".php";
+        if (file_exists($filename)) {
+            include($filename);
+        }
     }
 
     /*
@@ -797,11 +906,13 @@ class dbObject {
      *
      * @param string $path
      */
-    public static function autoload ($path = null) {
-        if ($path)
+    public static function autoload($path = null)
+    {
+        if ($path) {
             static::$modelPath = $path . "/";
-        else
+        } else {
             static::$modelPath = __DIR__ . "/models/";
-        spl_autoload_register ("dbObject::dbObjectAutoload");
+        }
+        spl_autoload_register("DB\dbObject");
     }
 }

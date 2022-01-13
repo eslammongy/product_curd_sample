@@ -33,7 +33,7 @@ class  App{
         if (class_exists($this->controller)){
             $controller = new $this->controller;
             if(method_exists($controller , $this->action)){
-                call_user_func_array([$controller , $this->action] , $this->parms);
+               // call_user_func_array([$controller , $this->action] , $this->parms);
                 $message = "Hello From Home Controller";
                 echo "<h1 style='text-align: center ; color: orangered'>$message</h1>";
             }else{

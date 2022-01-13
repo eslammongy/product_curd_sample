@@ -11,11 +11,11 @@
 <h1 style="color: orangered ; text-align: center ; width: max-content">Home Screen</h1>
 <b></b>
 <h3 style="color: green ; text-align: center ; width: max-content">
-    <?php echo $title; ?>
+
 </h3>
 <b></b>
 <h3 style="color: green ; text-align: center ; width: max-content">
-    <?php echo $content; ?>
+
 </h3>
 
 </body>

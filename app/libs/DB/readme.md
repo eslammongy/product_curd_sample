@@ -50,13 +50,15 @@ composer require thingengineer/mysqli-database-class:dev-master
 
 ### Initialization
 Simple initialization with utf8 charset set by default:
+
 ```php
-$db = new MysqliDb ('host', 'username', 'password', 'databaseName');
+use DB\MysqliDb;$db = new MysqliDb ('host', 'username', 'password', 'databaseName');
 ```
 
 Advanced initialization:
+
 ```php
-$db = new MysqliDb (Array (
+use DB\MysqliDb;$db = new MysqliDb (Array (
                 'host' => 'host',
                 'username' => 'username', 
                 'password' => 'password',
@@ -69,8 +71,9 @@ table prefix, port and database charset params are optional.
 If no charset should be set charset, set it to null
 
 Also it is possible to reuse already connected mysqli object:
+
 ```php
-$mysqli = new mysqli ('host', 'username', 'password', 'databaseName');
+use DB\MysqliDb;$mysqli = new mysqli ('host', 'username', 'password', 'databaseName');
 $db = new MysqliDb ($mysqli);
 ```
 
@@ -86,8 +89,9 @@ $db->autoReconnect = false;
 ```
 
 If you need to get already created mysqliDb object from another class or function use
+
 ```php
-    function init () {
+    use DB\MysqliDb;function init () {
         // db staying private here
         $db = new MysqliDb ('host', 'username', 'password', 'databaseName');
     }

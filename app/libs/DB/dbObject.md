@@ -7,8 +7,9 @@ Please note that this library is not pretending to be a full stack ORM, but simp
 ### Initialization
 
 Include mysqlidb and dbObject classes. If you want to use model autoloading instead of manually including them in the scripts use `autoload()` method.
+
 ```php
-require_once("libs/MysqliDb.php");
+use DB\dbObject;use DB\MysqliDb;require_once("libs/MysqliDb.php");
 require_once("libs/dbObject.php");
 
 // db instance
@@ -18,13 +19,15 @@ dbObject::autoload("models");
 ```
 
 Each database table could be easily mapped into a dbObject instance.  If you do not want to create model for a simple table its object could be simply created with a `table()` method.
+
 ```php
-$user = dbObject::table("users");
+use DB\dbObject;$user = dbObject::table("users");
 ```
 
 Otherwise basic model should be declared as:
+
 ```php
-class user extends dbObject {}
+use DB\dbObject;class user extends dbObject {}
 ```
 In case autoload is set to 'models' directory, the filename should be models/user.php
 
@@ -305,7 +308,7 @@ To block the access to certain fields using the `->` operator, you can declare t
 For example:
 
 ```php
-class User extends dbObject {
+use DB\dbObject;class User extends dbObject {
     protected $dbFields = array(
         'username' => array('text', 'required'),
         'password' => array('text', 'required'),
