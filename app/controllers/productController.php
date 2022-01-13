@@ -3,6 +3,6 @@
 class ProductController{
 
     public function index(){
-        echo "Products Controller";
+        echo "Products";
     }
 }
